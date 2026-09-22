@@ -1,6 +1,7 @@
 package Projeto.Pindura.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @Entity
@@ -11,6 +12,7 @@ public class Morador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "O nome é obrigatório")
     @Column(nullable = false)
     private String nome;
 

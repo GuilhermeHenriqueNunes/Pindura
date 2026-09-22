@@ -1,6 +1,10 @@
 package Projeto.Pindura.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,12 +19,16 @@ public class Despesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "O título é obrigatório")
     @Column(nullable = false)
     private String titulo;
 
+    @NotNull(message = "O valor é obrigatório")
+    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
     @Column(nullable = false)
     private BigDecimal valor;
 
+    @NotNull(message = "A data é obrigatória")
     @Column(nullable = false)
     private LocalDate data;
 
@@ -28,11 +36,13 @@ public class Despesa {
     private String descricao;
 
     // Relacionamento: Uma despesa tem 1 Morador como pagador
+    @NotNull(message = "O pagador é obrigatório")
     @ManyToOne
     @JoinColumn(name = "pagador_id", nullable = false)
     private Morador pagador;
 
     // Relacionamento: Uma despesa pode ter vários Moradores como participantes
+    @NotEmpty(message = "Selecione ao menos um participante")
     @ManyToMany
     @JoinTable(
             name = "despesa_participantes",
