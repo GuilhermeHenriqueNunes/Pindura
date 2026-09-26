@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pindura - Lista de Despesas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-wallet2"></i> Pindura
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/moradores}">Moradores</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active fw-semibold" th:href="@{/despesas}">Despesas</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt me-2 text-primary"></i>Despesas</h2>
+            <p class="text-muted mb-0">Histórico de despesas registradas e divisão de contas.</p>
+        </div>
+        <!-- Rota real de cadastro: GET /despesas/novo -->
+        <a th:href="@{/despesas/novo}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Nova Despesa
+        </a>
+    </div>
+
+    <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${mensagemErro}">Ocorreu um erro.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!--
+        DespesaController.listar() lê "pesquisa", "ordenarPor" e "direcao"
+        (não "titulo", "campo" e "ordem"). Os nomes dos campos do form precisam bater.
+    -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/despesas}" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="pesquisa" class="form-control" placeholder="Buscar por título da despesa..." th:value="${pesquisa}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="ordenarPor" class="form-select">
+                        <option value="data" th:selected="${ordenarPor == 'data'}">Ordenar por Data</option>
+                        <option value="valor" th:selected="${ordenarPor == 'valor'}">Ordenar por Valor</option>
+                        <option value="titulo" th:selected="${ordenarPor == 'titulo'}">Ordenar por Título</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="direcao" class="form-select">
+                        <option value="desc" th:selected="${direcao == 'desc'}">Decrescente</option>
+                        <option value="asc" th:selected="${direcao == 'asc'}">Crescente</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-outline-primary flex-fill">Filtrar</button>
+                    <a th:href="@{/despesas}" class="btn btn-outline-secondary" title="Limpar Filtro"><i class="bi bi-x-circle"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Título</th>
+                        <th>Data</th>
+                        <th>Pagador</th>
+                        <th>Participantes</th>
+                        <th class="text-end">Valor Total</th>
+                        <th class="text-end pe-4" style="width: 180px;">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="despesa : ${despesas}">
+                        <td class="ps-4 fw-semibold text-dark" th:text="${despesa.titulo}">Mercado Mensal</td>
+                        <td th:text="${#temporals.format(despesa.data, 'dd/MM/yyyy')}">15/10/2026</td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10" th:text="${despesa.pagador.nome}">Marcos</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary" th:text="${#lists.size(despesa.participantes) + ' pessoas'}">3 pessoas</span>
+                        </td>
+                        <td class="text-end fw-bold text-success" th:text="${#numbers.formatCurrency(despesa.valor)}">R$ 350,00</td>
+                        <td class="text-end pe-4">
+                            <!-- Rota real de visualização: GET /despesas/{id} -->
+                            <a th:href="@{/despesas/{id}(id=${despesa.id})}" class="btn btn-sm btn-outline-info me-1" title="Ver Divisão de Custos">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <!-- Rota real de edição: GET /despesas/{id}/editar -->
+                            <a th:href="@{/despesas/{id}/editar(id=${despesa.id})}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <!--
+                                Exclusão é POST /despesas/{id}/excluir no controller,
+                                então precisa ser um <form>, não um link <a> (GET).
+                            -->
+                            <form th:action="@{/despesas/{id}/excluir(id=${despesa.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir esta despesa?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(despesas)}">
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-receipt-cutoff display-6 d-block mb-2 text-secondary"></i>
+                            Nenhuma despesa encontrada.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

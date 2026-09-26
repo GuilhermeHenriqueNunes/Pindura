@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pindura - Detalhes da Despesa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-wallet2"></i> Pindura
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/moradores}">Moradores</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active fw-semibold" th:href="@{/despesas}">Despesas</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4" style="max-width: 900px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a th:href="@{/despesas}" class="btn btn-outline-secondary d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i> Voltar para Lista
+        </a>
+        <!-- Rota real de edição: GET /despesas/{id}/editar -->
+        <a th:href="@{/despesas/{id}/editar(id=${despesa.id})}" class="btn btn-warning d-flex align-items-center gap-1">
+            <i class="bi bi-pencil"></i> Editar Despesa
+        </a>
+    </div>
+
+    <!-- Card Principal da Despesa -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-primary mb-2" th:text="${#temporals.format(despesa.data, 'dd/MM/yyyy')}">01/10/2026</span>
+                    <h2 class="card-title fw-bold text-dark mb-1" th:text="${despesa.titulo}">Pizza do Fim de Semana</h2>
+                    <p class="text-muted mb-0" th:text="${despesa.descricao != null and !#strings.isEmpty(despesa.descricao) ? despesa.descricao : 'Sem descrição adicional.'}">
+                        Pizza com os moradores no sábado à noite.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="text-muted small d-block">VALOR TOTAL</span>
+                    <h1 class="fw-bold text-success mb-0" th:text="${#numbers.formatCurrency(despesa.valor)}">R$ 120,00</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel de Divisão de Custos -->
+    <div class="row g-4">
+
+        <!-- Cálculo por Participante -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom border-light">
+                    <h5 class="card-title fw-bold mb-0 text-secondary">
+                        <i class="bi bi-calculator me-2"></i> Divisão Individual
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!--
+                        Não existe um atributo "valorPorParticipante" no model do controller;
+                        o valor vem do método auxiliar da entidade: despesa.getValorPorParticipante(),
+                        acessado em Thymeleaf como ${despesa.valorPorParticipante}.
+                    -->
+                    <div class="p-3 bg-light rounded text-center mb-4">
+                        <span class="text-muted small d-block">VALOR POR PARTICIPANTE</span>
+                        <h3 class="fw-bold text-primary mb-0" th:text="${#numbers.formatCurrency(despesa.valorPorParticipante)}">R$ 40,00</h3>
+                        <span class="small text-muted" th:text="${'(' + #numbers.formatCurrency(despesa.valor) + ' ÷ ' + #lists.size(despesa.participantes) + ' participantes)'}">
+                                (R$ 120,00 ÷ 3 participantes)
+                            </span>
+                    </div>
+
+                    <h6 class="fw-bold text-secondary mb-3">Participantes da Divisão:</h6>
+                    <ul class="list-group list-group-flush">
+                        <li th:each="participante : ${despesa.participantes}" class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle fs-5 text-secondary"></i>
+                                <span class="fw-semibold" th:text="${participante.nome}">Guilherme</span>
+                                <span th:if="${participante.id == despesa.pagador.id}" class="badge bg-success-subtle text-success border border-success-subtle ms-1">Pagador</span>
+                            </div>
+                            <div class="text-end">
+                                    <span th:if="${participante.id == despesa.pagador.id}" class="text-success fw-bold">
+                                        Pago (<span th:text="${#numbers.formatCurrency(despesa.valorPorParticipante)}">R$ 40,00</span>)
+                                    </span>
+                                <span th:unless="${participante.id == despesa.pagador.id}" class="text-danger fw-semibold">
+                                        Deve <span th:text="${#numbers.formatCurrency(despesa.valorPorParticipante)}">R$ 40,00</span>
+                                    </span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações de Pagamento (Chave Pix) -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom border-light">
+                    <h5 class="card-title fw-bold mb-0 text-secondary">
+                        <i class="bi bi-qr-code me-2"></i> Dados para Acerto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">PAGADOR DA DESPESA</span>
+                        <h5 class="fw-bold text-dark" th:text="${despesa.pagador.nome}">Marcos Silva</h5>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="mb-3">
+                        <span class="text-muted small d-block mb-1">CHAVE PIX PARA TRANSFERÊNCIA</span>
+                        <div th:if="${despesa.pagador.chavePix != null and !#strings.isEmpty(despesa.pagador.chavePix)}" class="p-3 bg-light border rounded">
+                            <code class="fs-6 fw-bold text-dark d-block text-break mb-2" th:text="${despesa.pagador.chavePix}">marcos@pix.com</code>
+                            <span class="badge bg-info text-dark"><i class="bi bi-info-circle me-1"></i> Utilize a chave acima para realizar o acerto direto.</span>
+                        </div>
+                        <div th:unless="${despesa.pagador.chavePix != null and !#strings.isEmpty(despesa.pagador.chavePix)}" class="alert alert-warning mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            O pagador não cadastrou uma chave Pix em seu perfil.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

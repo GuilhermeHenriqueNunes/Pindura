@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pindura - Formulário de Despesa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-wallet2"></i> Pindura
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/moradores}">Moradores</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active fw-semibold" th:href="@{/despesas}">Despesas</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4" style="max-width: 800px;">
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 border-bottom border-light">
+            <h4 class="card-title fw-bold mb-0 text-primary">
+                <i class="bi bi-receipt-cutoff me-2"></i>
+                <span th:text="${despesa.id == null ? 'Nova Despesa' : 'Editar Despesa'}">Cadastro de Despesa</span>
+            </h4>
+        </div>
+        <div class="card-body p-4">
+
+            <div th:if="${erro}" class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${erro}">Erro de validação.</span>
+            </div>
+
+            <!--
+                O DespesaController só tem @PostMapping("/despesas") (sem "/salvar").
+                Além disso, ele NÃO faz binding de "pagador"/"participantes" como objetos:
+                ele espera @RequestParam Long pagadorId e List<Long> participantesIds.
+                Por isso os campos abaixo usam name="pagadorId" / name="participantesIds"
+                soltos, em vez de th:field="*{pagador}" / th:field="*{participantes}"
+                (que tentariam converter String->Morador e quebrariam sem um conversor).
+            -->
+            <form th:action="@{/despesas}" th:object="${despesa}" method="post" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="mb-3">
+                    <label for="titulo" class="form-label fw-semibold">Título / Descrição Curta <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="titulo" th:field="*{titulo}"
+                           placeholder="Ex: Pizza do Fim de Semana, Luz, Internet" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="valor" class="form-label fw-semibold">Valor Total (R$) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="valor" th:field="*{valor}"
+                                   placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="data" class="form-label fw-semibold">Data da Despesa <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="data" th:field="*{data}" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="pagadorId" class="form-label fw-semibold">Quem pagou? <span class="text-danger">*</span></label>
+                    <!-- name="pagadorId": bate com @RequestParam Long pagadorId do controller -->
+                    <select class="form-select" id="pagadorId" name="pagadorId" required>
+                        <option value="" th:selected="${despesa.pagador == null}" disabled>Selecione o morador que efetuou o pagamento...</option>
+                        <option th:each="morador : ${moradores}"
+                                th:value="${morador.id}"
+                                th:selected="${despesa.pagador != null and despesa.pagador.id == morador.id}"
+                                th:text="${morador.nome}">
+                            Marcos
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Quem participou da divisão? <span class="text-danger">*</span></label>
+                    <!-- name="participantesIds": bate com @RequestParam List<Long> participantesIds do controller -->
+                    <div class="p-3 border rounded bg-light">
+                        <div class="form-check mb-2" th:each="morador : ${moradores}">
+                            <input class="form-check-input" type="checkbox"
+                                   name="participantesIds"
+                                   th:value="${morador.id}"
+                                   th:id="${'participante_' + morador.id}"
+                                   th:checked="${despesa.participantes != null and despesa.participantes.contains(morador)}">
+                            <label class="form-check-label text-dark" th:for="${'participante_' + morador.id}" th:text="${morador.nome}">
+                                Guilherme
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="descricao" class="form-label fw-semibold">Observações / Descrição <span class="text-muted fw-normal">(Opcional)</span></label>
+                    <textarea class="form-control" id="descricao" th:field="*{descricao}" rows="3" placeholder="Ex: Detalhes dos itens comprados ou observações sobre a conta..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a th:href="@{/despesas}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4" th:text="${despesa.id == null ? 'Salvar Despesa' : 'Atualizar Despesa'}">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

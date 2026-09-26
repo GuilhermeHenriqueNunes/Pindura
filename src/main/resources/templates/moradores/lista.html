@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pindura - Lista de Moradores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-wallet2"></i> Pindura
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="bi bi-house-door-fill me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active fw-semibold" th:href="@{/moradores}">
+                        <i class="bi bi-people-fill me-1"></i> Moradores
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/despesas}">
+                        <i class="bi bi-receipt me-1"></i> Despesas
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-primary"></i>Moradores</h2>
+            <p class="text-muted mb-0">Gerencie as pessoas que compartilham as despesas da casa.</p>
+        </div>
+        <!-- Rota real de cadastro: GET /moradores/novo -->
+        <a th:href="@{/moradores/novo}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-person-plus-fill"></i> Cadastrar Morador
+        </a>
+    </div>
+
+    <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${mensagemSucesso}">Sucesso!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${mensagemErro}">Erro!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!--
+        Atenção: o MoradorController.listar() lê os parâmetros "pesquisa" e "direcao"
+        (não "nome" e "ordem"). O <form method="get"> abaixo precisa usar esses nomes
+        de campo, senão o filtro/ordenação nunca chegam ao controller.
+    -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/moradores}" class="row g-3 align-items-center">
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="pesquisa" class="form-control" placeholder="Buscar morador pelo nome..." th:value="${pesquisa}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="direcao" class="form-select" onchange="this.form.submit()">
+                        <option value="asc" th:selected="${direcao == 'asc'}">Nome (A-Z)</option>
+                        <option value="desc" th:selected="${direcao == 'desc'}">Nome (Z-A)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-outline-primary flex-fill">Buscar</button>
+                    <a th:href="@{/moradores}" class="btn btn-outline-secondary" title="Limpar Filtro"><i class="bi bi-x-circle"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;" class="ps-4">#</th>
+                        <th>Nome</th>
+                        <th>Chave Pix</th>
+                        <th class="text-end pe-4" style="width: 180px;">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="morador : ${moradores}">
+                        <td class="ps-4 text-muted fw-bold" th:text="${morador.id}">1</td>
+                        <td class="fw-semibold text-dark" th:text="${morador.nome}">Marcos Silva</td>
+                        <td>
+                                    <span th:if="${morador.chavePix != null and !#strings.isEmpty(morador.chavePix)}" class="badge bg-light text-dark border fw-normal">
+                                        <i class="bi bi-qr-code me-1 text-primary"></i>
+                                        <span th:text="${morador.chavePix}">marcos@pix.com</span>
+                                    </span>
+                            <span th:unless="${morador.chavePix != null and !#strings.isEmpty(morador.chavePix)}" class="text-muted small fst-italic">Não cadastrada</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <!-- Rota real de edição: GET /moradores/{id}/editar -->
+                            <a th:href="@{/moradores/{id}/editar(id=${morador.id})}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <!--
+                                Exclusão é POST /moradores/{id}/excluir no controller,
+                                então precisa ser um <form>, não um link <a> (GET).
+                            -->
+                            <form th:action="@{/moradores/{id}/excluir(id=${morador.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este morador?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(moradores)}">
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x display-6 d-block mb-2 text-secondary"></i>
+                            Nenhum morador encontrado.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
