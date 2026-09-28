@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pindura - Início</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar('home')}"></div>
+<div th:replace="~{fragments/layout :: mobileSidebar('home')}"></div>
+
+<div class="app-shell">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+
+    <main class="page-content">
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <section class="page-header">
+            <div class="page-kicker">Bem-vindo à</div>
+            <h1 class="page-title" th:text="${nomeResidencia != null ? nomeResidencia : 'República Pindura'}">República Pindura</h1>
+            <p class="page-subtitle">Controle das despesas da casa de forma simples e prática.</p>
+        </section>
+
+        <section class="row g-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="surface-card metric-card h-100">
+                    <div>
+                        <div class="metric-label">Total de moradores</div>
+                        <p class="metric-value" th:text="${totalMoradores != null ? totalMoradores : 0}">0</p>
+                    </div>
+                    <div class="metric-icon"><i class="bi bi-people"></i></div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="surface-card metric-card h-100">
+                    <div>
+                        <div class="metric-label">Total de despesas</div>
+                        <p class="metric-value" th:text="${totalDespesas != null ? totalDespesas : 0}">0</p>
+                    </div>
+                    <div class="metric-icon"><i class="bi bi-receipt"></i></div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="surface-card metric-card money h-100">
+                    <div>
+                        <div class="metric-label">Valor total acumulado</div>
+                        <p class="metric-value" th:text="${valorTotal != null ? #numbers.formatCurrency(valorTotal) : 'R$ 0,00'}">R$ 0,00</p>
+                    </div>
+                    <div class="metric-icon"><i class="bi bi-wallet2"></i></div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="surface-card quick-panel h-100">
+                    <div class="quick-heading"><i class="bi bi-lightning-charge"></i> Ações rápidas</div>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/despesas/novo}" class="btn btn-pindura btn-lg">
+                            <i class="bi bi-plus-lg me-2"></i>Nova despesa
+                        </a>
+                        <a th:href="@{/moradores/novo}" class="btn btn-outline-pindura btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Novo morador
+                        </a>
+                    </div>
+                    <div class="quick-links">
+                        <a th:href="@{/moradores}" class="quick-link">
+                            <span class="quick-link-label"><i class="bi bi-people"></i>Moradores</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a th:href="@{/despesas}" class="quick-link">
+                            <span class="quick-link-label"><i class="bi bi-receipt"></i>Despesas</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="surface-card mt-4 overflow-hidden">
+            <div class="panel-title-row">
+                <h2 class="panel-title"><i class="bi bi-clock-history"></i> Despesas recentes</h2>
+                <a th:href="@{/despesas}" class="panel-link">Ver todas <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table pindura-table align-middle">
+                    <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Data</th>
+                        <th>Pagador</th>
+                        <th class="text-end">Valor total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="despesa : ${ultimasDespesas}">
+                        <td class="fw-semibold" th:text="${despesa.titulo}">Mercado</td>
+                        <td th:text="${#temporals.format(despesa.data, 'dd/MM/yyyy')}">15/09/2026</td>
+                        <td th:text="${despesa.pagador.nome}">Marcos</td>
+                        <td class="text-end fw-bold" th:text="${#numbers.formatCurrency(despesa.valor)}">R$ 120,00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(ultimasDespesas)}">
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="bi bi-receipt"></i>
+                                Nenhuma despesa registrada até o momento.
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

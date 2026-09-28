@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="sidebar(activePage)" class="sidebar d-none d-lg-flex flex-column">
+    <div class="sidebar-brand">
+        <a th:href="@{/}" class="sidebar-logo-link" aria-label="Ir para o início">
+            <img th:src="@{/img/pindura-mico.png}" alt="Mico-leão-dourado" class="sidebar-mico">
+            <span class="sidebar-brand-name">Pindura</span>
+        </a>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+        <a th:href="@{/}" class="sidebar-link" th:classappend="${activePage == 'home'} ? ' active' : ''">
+            <i class="bi bi-house-door"></i>
+            <span>Início</span>
+        </a>
+        <a th:href="@{/moradores}" class="sidebar-link" th:classappend="${activePage == 'moradores'} ? ' active' : ''">
+            <i class="bi bi-people"></i>
+            <span>Moradores</span>
+        </a>
+        <a th:href="@{/despesas}" class="sidebar-link" th:classappend="${activePage == 'despesas'} ? ' active' : ''">
+            <i class="bi bi-receipt"></i>
+            <span>Despesas</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-decor" aria-hidden="true">
+        <span class="leaf leaf-one"></span>
+        <span class="leaf leaf-two"></span>
+        <span class="leaf leaf-three"></span>
+        <span class="sidebar-curve"></span>
+    </div>
+</aside>
+
+<div th:fragment="mobileSidebar(activePage)" class="offcanvas offcanvas-start pindura-offcanvas" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+    <div class="offcanvas-header">
+        <a th:href="@{/}" class="offcanvas-brand" id="mobileSidebarLabel">
+            <img th:src="@{/img/pindura-mico.png}" alt="Mico-leão-dourado">
+            <span>Pindura</span>
+        </a>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+    </div>
+    <div class="offcanvas-body pt-1">
+        <nav class="sidebar-nav mobile-nav" aria-label="Navegação principal">
+            <a th:href="@{/}" class="sidebar-link" th:classappend="${activePage == 'home'} ? ' active' : ''" data-bs-dismiss="offcanvas">
+                <i class="bi bi-house-door"></i><span>Início</span>
+            </a>
+            <a th:href="@{/moradores}" class="sidebar-link" th:classappend="${activePage == 'moradores'} ? ' active' : ''" data-bs-dismiss="offcanvas">
+                <i class="bi bi-people"></i><span>Moradores</span>
+            </a>
+            <a th:href="@{/despesas}" class="sidebar-link" th:classappend="${activePage == 'despesas'} ? ' active' : ''" data-bs-dismiss="offcanvas">
+                <i class="bi bi-receipt"></i><span>Despesas</span>
+            </a>
+        </nav>
+    </div>
+</div>
+
+<header th:fragment="topbar" class="topbar">
+    <div class="topbar-inner">
+        <button class="btn mobile-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Abrir menu">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-residence">
+            <i class="bi bi-house-door"></i>
+            <span>República Pindura</span>
+            <i class="bi bi-chevron-down small text-muted"></i>
+        </div>
+
+        <a th:href="@{/}" class="topbar-logo" aria-label="Ir para o início">
+            <img th:src="@{/img/pindura-logo.png}" alt="Pindura">
+        </a>
+    </div>
+</header>
+
+<div th:fragment="messages" class="page-messages">
+    <div th:if="${mensagemSucesso}" class="alert alert-success pindura-alert alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${mensagemSucesso}">Operação realizada com sucesso.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    <div th:if="${mensagemErro}" class="alert alert-danger pindura-alert alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        <span th:text="${mensagemErro}">Ocorreu um erro.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+</div>
+
+</body>
+</html>
