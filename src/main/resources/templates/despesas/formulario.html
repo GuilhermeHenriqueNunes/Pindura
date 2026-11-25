@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${despesa.id == null ? 'Pindura - Nova despesa' : 'Pindura - Editar despesa'}">Pindura - Despesa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: sidebar('despesas')}"></div>
+<div th:replace="~{fragments/layout :: mobileSidebar('despesas')}"></div>
+
+<div class="app-shell">
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <main class="page-content">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a th:href="@{/despesas}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+            <div>
+                <div class="page-kicker">Despesas</div>
+                <h1 class="page-title fs-2" th:text="${despesa.id == null ? 'Nova despesa' : 'Editar despesa'}">Nova despesa</h1>
+            </div>
+        </div>
+
+        <div th:if="${erro}" class="alert alert-danger pindura-alert mb-4" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            <span th:text="${erro}">Confira os dados informados.</span>
+        </div>
+
+        <section class="surface-card form-card">
+            <form th:action="@{/despesas}" th:object="${despesa}" method="post">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <h2 class="form-section-title"><i class="bi bi-receipt"></i> Sobre a despesa</h2>
+
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label fw-semibold">Título <span class="text-danger">*</span></label>
+                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control" placeholder="Ex.: Mercado, internet, pizza..." required>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="valor" class="form-label fw-semibold">Valor total <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" id="valor" step="0.01" min="0.01" th:field="*{valor}" class="form-control" placeholder="0,00" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="data" class="form-label fw-semibold">Data <span class="text-danger">*</span></label>
+                                <input type="date" id="data" th:field="*{data}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="descricao" class="form-label fw-semibold">Observações <span class="text-muted fw-normal">(opcional)</span></label>
+                            <textarea id="descricao" th:field="*{descricao}" rows="5" class="form-control" placeholder="Algum detalhe sobre a despesa..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <h2 class="form-section-title"><i class="bi bi-people"></i> Divisão da conta</h2>
+
+                        <div class="mb-3">
+                            <label for="pagadorId" class="form-label fw-semibold">Quem pagou? <span class="text-danger">*</span></label>
+                            <select id="pagadorId" name="pagadorId" class="form-select" required>
+                                <option value="" th:selected="${despesa.pagador == null}" disabled>Selecione um morador</option>
+                                <option th:each="morador : ${moradores}"
+                                        th:value="${morador.id}"
+                                        th:selected="${despesa.pagador != null and despesa.pagador.id == morador.id}"
+                                        th:text="${morador.nome}">Guilherme</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label fw-semibold">Quem participou? <span class="text-danger">*</span></label>
+                            <div class="participant-box">
+                                <div class="participant-item form-check" th:each="morador : ${moradores}">
+                                    <input class="form-check-input" type="checkbox" name="participantesIds"
+                                           th:value="${morador.id}" th:id="${'participante_' + morador.id}"
+                                           th:checked="${despesa.participantes != null and despesa.participantes.contains(morador)}">
+                                    <label class="form-check-label" th:for="${'participante_' + morador.id}" th:text="${morador.nome}">Guilherme</label>
+                                </div>
+                                <div th:if="${#lists.isEmpty(moradores)}" class="text-muted small">Cadastre pelo menos um morador antes de criar uma despesa.</div>
+                            </div>
+                            <div class="form-text mt-2">O valor será dividido igualmente entre os participantes.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-4 mt-4 border-top">
+                    <a th:href="@{/despesas}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-pindura px-4" th:text="${despesa.id == null ? 'Salvar despesa' : 'Atualizar despesa'}">Salvar despesa</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
