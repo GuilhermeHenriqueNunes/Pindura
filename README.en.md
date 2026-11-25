@@ -173,7 +173,9 @@ Run the automated test suite and Maven build checks:
 
 ---
 
-## 👨‍💻 Author
+## 👥 Authors & Collaborators
+
+Crafted in collaboration by:
 
 <table align="center">
   <tr>
@@ -186,6 +188,15 @@ Run the automated test suite and Maven build checks:
         <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white" />
       </a>
       <a href="https://github.com/GuilhermeHenriqueNunes" title="GitHub">
+        <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/cordeiromarcos">
+        <img src="https://github.com/cordeiromarcos.png" width="100px;" alt="Marcos Cordeiro"/><br />
+        <sub><b>Marcos Cordeiro</b></sub>
+      </a><br />
+      <a href="https://github.com/cordeiromarcos" title="GitHub">
         <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white" />
       </a>
     </td>
